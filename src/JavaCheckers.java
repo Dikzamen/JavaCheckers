@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.swing.*;
 
@@ -52,93 +53,96 @@ public class JavaCheckers extends JPanel {
 
         public void createButtons() {
             Font f = new Font("serif", Font.PLAIN, 40);
-        for (int i = 0; i < totalRows; i++) {
-            for (int j = 0; j < totalColumns; j++) {
+            for (int i = 0; i < totalRows; i++) {
+                for (int j = 0; j < totalColumns; j++) {
 
-                CheckersSquare button = new CheckersSquare();
-                button.setHorizontalAlignment(SwingConstants.CENTER);
-                button.setHorizontalAlignment(SwingConstants.CENTER);
-//                button.setTe
-                button.setRow(i);
-                button.setCol(j);
-                button.setFont(f);
-                button.setText("\u26C0");
-                button.setBorder(null);
-                button.setFocusable(false);
+                    CheckersSquare button = new CheckersSquare();
+                    button.setHorizontalAlignment(SwingConstants.CENTER);
+                    button.setHorizontalAlignment(SwingConstants.CENTER);
 
+                    button.setRow(i);
+                    button.setCol(j);
+                    button.setFont(f);
 
-                jButtons[i][j] = button;
+                    button.setBorder(null);
+                    button.setFocusable(false);
+                    button.setEnabled(false);
 
-                String text = i + ",  " + j;
-                if (i + j % 2 == 0)
-                    button.setText(text);
+                    jButtons[i][j] = button;
+                    add(button);
+                    if ((i + j) % 2 == 0) continue;
 
-
-                button.addActionListener(e ->
-                {
-                    CheckersSquare clickedBtn = (CheckersSquare) e.getSource();
-                    recolor();
-
-                    if (currentSquare == clickedBtn) {
-                        currentSquare = null;
+                    if (i < 3) {
+                        button.setPiece(new Man(i, j , false) );
+                        button.setText(Man.blackMan);
                     }
-                    else if (currentSquare == null || (clickedBtn.getPiece() != null && clickedBtn.getPiece().white == currentSquare.getPiece().white)){
-                        if (clickedBtn.getIcon() != null && clickedBtn.getPiece().white == moveWhite) {
-                            currentSquare = clickedBtn;
-                            Man piece = currentSquare.getPiece();
-                            for (int row = 0; row < totalRows; row++ ){
-                                for (int col = 0; col < totalColumns; col++ ){
+                    if (i > 4) {
+                        button.setPiece(new Man(i, j , true) );
+                        button.setText(Man.whiteMan);
+                    }
 
-                                    if (piece.isValidMove(clickedBtn, jButtons[row][col])) {
-                                        jButtons[row][col].setBackground(UIManager.getColor("control"));
+                    button.setEnabled(true);
+                    button.addActionListener(e ->
+                    {
+                        CheckersSquare clickedBtn = (CheckersSquare) e.getSource();
+                        recolor();
+
+                        if (currentSquare == clickedBtn) {
+                            currentSquare = null;
+                        }
+                        else if (currentSquare == null){
+                            if (!Objects.equals(clickedBtn.getText(), "")
+//                                    && clickedBtn.getPiece().white == moveWhite
+                            ) {
+                                currentSquare = clickedBtn;
+                                Man piece = currentSquare.getPiece();
+                                for (int row = 0; row < totalRows; row++) {
+                                    for (int col = 0; col < totalColumns; col++) {
+
+                                        if (piece.isValidMove(clickedBtn, jButtons[row][col])) {
+                                            jButtons[row][col].setBackground(UIManager.getColor("control"));
+                                        }
                                     }
                                 }
-
                             }
                         }
+
                         else {
-                        System.out.println("what???");
+
+                            Man piece = JavaCheckers.currentSquare.getPiece();
+                            Man targetPiece = clickedBtn.getPiece();
+                            boolean move = piece.move(JavaCheckers.currentSquare,clickedBtn);
+                            if (!move) return;
+                            boolean victory = checkForVictory();
+                            if (victory){
+                                String color = "black";
+                                if (moveWhite) color = "white";
+
+                                frame.setTitle(color + " won");
+                                endGame();
+                                return;
+                            }
+                            moveWhite = !moveWhite;
+                            if (moveWhite)
+                                frame.setTitle("white moves");
+                            else {
+                                frame.setTitle("black moves");
+                            }
+                            moveNum += 1;
+
+
+
 
                         }
-                    }
-
-                    else {
-
-                        Man piece = JavaCheckers.currentSquare.getPiece();
-                        Man targetPiece = clickedBtn.getPiece();
-                        boolean move = piece.move(JavaCheckers.currentSquare,clickedBtn);
-                        if (!move) return;
-                        boolean victory = checkForVictory();
-                        if (victory){
-                            String color = "black";
-                            if (moveWhite) color = "white";
-
-                            frame.setTitle(color + " won");
-                            endGame();
-                            return;
-                        }
-                        moveWhite = !moveWhite;
-                        if (moveWhite)
-                            frame.setTitle("white moves");
-                        else {
-                            frame.setTitle("black moves");
-                        }
-                        moveNum += 1;
-
-
 
 
                     }
-
+                    );
 
                 }
-                );
-
-                add(button);
             }
+            recolor();
         }
-        recolor();
-    }
 
 
     private void endGame(){

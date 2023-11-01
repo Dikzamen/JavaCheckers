@@ -25,6 +25,12 @@ public class CheckersSquare extends JButton {
         return piece;
     }
 
+    public boolean isPlayableSquare(){
+        if ((getRow() + getCol()) % 2 != 0)
+            return true;
+        return false;
+    }
+
     public void setPiece(Man piece) {
         this.piece = piece;
     }
