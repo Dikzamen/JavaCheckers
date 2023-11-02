@@ -26,9 +26,7 @@ public class CheckersSquare extends JButton {
     }
 
     public boolean isPlayableSquare(){
-        if ((getRow() + getCol()) % 2 != 0)
-            return true;
-        return false;
+        return (getRow() + getCol()) % 2 != 0;
     }
 
     public void setPiece(Man piece) {
@@ -39,6 +37,9 @@ public class CheckersSquare extends JButton {
     }
     public void removeIcon(){
         setIcon(null);
+    }
+    public String boardLocation(){
+        return String.format("(%d, %d)", getCol(), getRow());
     }
 
 }

@@ -14,7 +14,7 @@ public class JavaCheckers extends JPanel {
     static final Color whiteSquare = new Color(133,88,53,255);
     public static CheckersSquare[][] jButtons = new CheckersSquare[totalColumns][totalRows];
     public static JFrame frame;
-    boolean moveWhite = true;
+    public static boolean moveWhite = true;
 
     public static CheckersSquare currentSquare;
 
@@ -92,10 +92,11 @@ public class JavaCheckers extends JPanel {
                         }
                         else if (currentSquare == null){
                             if (!Objects.equals(clickedBtn.getText(), "")
-//                                    && clickedBtn.getPiece().white == moveWhite
+                                    && clickedBtn.getPiece().white == moveWhite
                             ) {
                                 currentSquare = clickedBtn;
                                 Man piece = currentSquare.getPiece();
+                                System.out.println("\n\n\n");
                                 for (int row = 0; row < totalRows; row++) {
                                     for (int col = 0; col < totalColumns; col++) {
 
@@ -108,11 +109,14 @@ public class JavaCheckers extends JPanel {
                         }
 
                         else {
-
+                            CheckersSquare oldSquare = JavaCheckers.currentSquare;
                             Man piece = JavaCheckers.currentSquare.getPiece();
                             Man targetPiece = clickedBtn.getPiece();
                             boolean move = piece.move(JavaCheckers.currentSquare,clickedBtn);
                             if (!move) return;
+                            CheckersSquare enemySquare = piece.getEnemyBetween(oldSquare, clickedBtn);
+                            if (enemySquare != null) enemySquare.getPiece().die();
+//                            System.out.println("enemy square =" + enemySquare.boardLocation() + " piece" + enemySquare.getPiece());
                             boolean victory = checkForVictory();
                             if (victory){
                                 String color = "black";
@@ -130,14 +134,10 @@ public class JavaCheckers extends JPanel {
                             }
                             moveNum += 1;
 
-
-
-
                         }
 
-
                     }
-                    );
+                );
 
                 }
             }
@@ -153,9 +153,19 @@ public class JavaCheckers extends JPanel {
         }
     }
     private boolean checkForVictory() {
-        return false;
+        ArrayList<Man> enemyTeam = getEnemyTeam();
+        return enemyTeam.isEmpty();
     }
 
+    public static ArrayList<Man> getEnemyTeam(){
+        ArrayList<Man> team = new ArrayList<>();
+        ArrayList<Man> fullTeam = Man.whiteTeam;
+        if (moveWhite) fullTeam = Man.blackTeam;
+        for(Man m: fullTeam){
+            if (m.alive) team.add(m);
+        }
+        return team;
+    }
 
     public static void main(String[] args) throws InterruptedException {
         JFrame jFrame = new JFrame("Java Chess");
