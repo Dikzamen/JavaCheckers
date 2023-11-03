@@ -6,7 +6,8 @@ public class Man {
     public int y;
     public int moveCount = 0;
     public int previousMove = 0;
-    public boolean white;
+    private final int speed = 1;
+    public boolean isWhite;
     public boolean alive = true;
     public boolean temporarilyDead = false;
 
@@ -23,17 +24,18 @@ public class Man {
     }
 
     public Man(int _x, int _y, boolean isWhite){
+        System.out.println("man constr " + _x + " " + _y);
         x = _x;
         y = _y;
-        white = isWhite;
+        this.isWhite = isWhite;
         setIcon();
         setButton();
-        if (white) whiteTeam.add(this);
+        if (this.isWhite) whiteTeam.add(this);
         else blackTeam.add(this);
     }
     public void setIcon(){
         String color = "white";
-        if (!white) color = "black";
+        if (!isWhite) color = "black";
         String name = getFilename() + "_" + color;
         icon = new ImageIcon(name);
     }
@@ -74,7 +76,7 @@ public class Man {
         for (int i = square1.getRow() + directionX, j = square1.getCol() + directionY;
              i != square2.getRow() && j != square2.getCol(); i += directionX, j += directionY){
             CheckersSquare square = JavaCheckers.jButtons[i][j];
-            if (square.getPiece() != null && square.getPiece().white != white)
+            if (square.getPiece() != null && square.getPiece().isWhite != isWhite)
                 return JavaCheckers.jButtons[i][j];
         }
         return null;
@@ -92,7 +94,7 @@ public class Man {
         int horizontalDiff = Math.abs(x - square2.getRow());
         int verticalDiff = Math.abs(y - square2.getCol());
         int distance = horizontalDiff;
-        System.out.println("direction" + getDirection() + " white=" + white);
+        System.out.println("direction" + getDirection() + " white=" + isWhite);
         if (!isEnemyBetween(square1, square2) && horizontalDiff > 1) return false;
         Man enemyPiece = temporarilyMove(square2);
         temporarilyUnmove(oldSquare, enemyPiece);
@@ -111,18 +113,22 @@ public class Man {
     }
 
     private boolean isTeamMate(CheckersSquare square2) {
-        return square2.getPiece() != null && square2.getPiece().white == white;
+        return square2.getPiece() != null && square2.getPiece().isWhite == isWhite;
     }
 
     public int getDirection(){
-        int multiplier = white ? 1 : 0;
+        int multiplier = isWhite ? 1 : 0;
         multiplier *= 2;
         multiplier -= 1;
         return -multiplier;
     }
 
     public void promote(){
-
+        int xNew = x;
+        int yNew = y;
+        System.out.println("xNew"  + xNew + " yNew=" + yNew);
+        die();
+        new King(xNew, yNew, isWhite);
     }
     public boolean move(CheckersSquare square1, CheckersSquare square2){
 
@@ -145,10 +151,12 @@ public class Man {
         previousMove = JavaCheckers.moveNum;
         System.out.println("moved" + this.getClass() + "move = "+ previousMove);
         currentSquare = square2;
-        if (white && x == 7)
+        if (isWhite && x == 0)
             promote();
-        return true;
+        else if (!isWhite && x == 7)
+            promote();
 
+        return true;
     }
     public void die(){
         CheckersSquare square = JavaCheckers.getSquare(x, y);

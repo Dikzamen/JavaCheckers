@@ -72,11 +72,11 @@ public class JavaCheckers extends JPanel {
                     add(button);
                     if ((i + j) % 2 == 0) continue;
 
-                    if (i < 3) {
+                    if (i < 2) {
                         button.setPiece(new Man(i, j , false) );
                         button.setText(Man.blackMan);
                     }
-                    if (i > 4) {
+                    if (i > 5) {
                         button.setPiece(new Man(i, j , true) );
                         button.setText(Man.whiteMan);
                     }
@@ -92,7 +92,7 @@ public class JavaCheckers extends JPanel {
                         }
                         else if (currentSquare == null){
                             if (!Objects.equals(clickedBtn.getText(), "")
-                                    && clickedBtn.getPiece().white == moveWhite
+                                    && clickedBtn.getPiece().isWhite == moveWhite
                             ) {
                                 currentSquare = clickedBtn;
                                 Man piece = currentSquare.getPiece();
