@@ -141,7 +141,6 @@ public class Man {
         y = square2.getCol();
         moveCount += 1;
 
-        System.out.println(square2.getText());
         square2.setText(square1.getText());
         square1.setText("");
         square2.setPiece(this);

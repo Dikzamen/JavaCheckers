@@ -116,7 +116,7 @@ public class JavaCheckers extends JPanel {
                             if (!move) return;
                             CheckersSquare enemySquare = piece.getEnemyBetween(oldSquare, clickedBtn);
                             if (enemySquare != null) enemySquare.getPiece().die();
-//                            System.out.println("enemy square =" + enemySquare.boardLocation() + " piece" + enemySquare.getPiece());
+
                             boolean victory = checkForVictory();
                             if (victory){
                                 String color = "black";
@@ -126,6 +126,23 @@ public class JavaCheckers extends JPanel {
                                 endGame();
                                 return;
                             }
+                            boolean chainMove = false;
+                            if (enemySquare != null)
+                                for (int row = 0; row < totalRows; row++) {
+                                    for (int col = 0; col < totalColumns; col++) {
+                                        if (!piece.isValidMove(clickedBtn, jButtons[row][col])) continue;
+                                        enemySquare = piece.getEnemyBetween(clickedBtn, jButtons[row][col]);
+                                        if (enemySquare == null) continue;
+                                        jButtons[row][col].setBackground(UIManager.getColor("control"));
+                                        chainMove = true;
+                                    }
+                                }
+
+                            if (chainMove) {
+                                currentSquare = clickedBtn;
+                                return;
+                            }
+
                             moveWhite = !moveWhite;
                             if (moveWhite)
                                 frame.setTitle("white moves");

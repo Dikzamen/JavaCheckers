@@ -54,7 +54,9 @@ public class King extends Man{
         if (!square2.isPlayableSquare()) return false;
         CheckersSquare oldSquare = currentSquare;
         if (square2.getPiece() != null) return false;
-        return true;
+        int horizontalDiff = Math.abs(x - square2.getRow());
+        int verticalDiff = Math.abs(y - square2.getCol());
+        return horizontalDiff == verticalDiff;
     }
 
     private boolean isTeamMate(CheckersSquare square2) {
