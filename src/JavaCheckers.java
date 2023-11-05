@@ -14,10 +14,14 @@ public class JavaCheckers extends JPanel {
     static final Color whiteSquare = new Color(133,88,53,255);
     public static CheckersSquare[][] jButtons = new CheckersSquare[totalColumns][totalRows];
     public static JFrame frame;
+    public static boolean chainCapture = false;
     public static boolean moveWhite = true;
 
     public static CheckersSquare currentSquare;
 
+    public static void setCurrentSquare(CheckersSquare square){
+        currentSquare = square;
+    }
     public static void removeCurrentSquare(){
         currentSquare = null;
     }
@@ -43,12 +47,43 @@ public class JavaCheckers extends JPanel {
 
             }
         }
+        showPossibleMoves();
     }
         public void createPieces() {
-            for (int i = 0; i < totalColumns; i++){
+            for (int i = 0; i < totalRows; i++){
+                for (int j = 0; j < totalColumns; j++){
+                    if ((i + j) % 2 == 0) continue;
+                    CheckersSquare button = getSquare(i, j);
+                    assert button != null;
+                    if (i < 2) {
+                        button.setPiece(new Man(i, j , false) );
+                        button.setText(Man.blackMan);
+                    }
+                    if (i > 5) {
+                        button.setPiece(new Man(i, j , true) );
+                        button.setText(Man.whiteMan);
+                    }
+
+                }
             }
 
 
+        }
+        public void showPossibleMoves(){
+            CheckersSquare enemySquare;
+            if(currentSquare == null) return;
+            Man piece = currentSquare.getPiece();
+            for (int row = 0; row < totalRows; row++) {
+                for (int col = 0; col < totalColumns; col++) {
+                    if (piece.isValidMove(currentSquare, jButtons[row][col])) {
+                        if (chainCapture) {
+                            enemySquare = piece.getEnemyBetween(currentSquare, jButtons[row][col]);
+                            if (enemySquare == null) continue;
+                        }
+                        jButtons[row][col].setBackground(UIManager.getColor("control"));
+                    }
+                }
+            }
         }
 
         public void createButtons() {
@@ -72,15 +107,6 @@ public class JavaCheckers extends JPanel {
                     add(button);
                     if ((i + j) % 2 == 0) continue;
 
-                    if (i < 2) {
-                        button.setPiece(new Man(i, j , false) );
-                        button.setText(Man.blackMan);
-                    }
-                    if (i > 5) {
-                        button.setPiece(new Man(i, j , true) );
-                        button.setText(Man.whiteMan);
-                    }
-
                     button.setEnabled(true);
                     button.addActionListener(e ->
                     {
@@ -88,32 +114,44 @@ public class JavaCheckers extends JPanel {
                         recolor();
 
                         if (currentSquare == clickedBtn) {
-                            currentSquare = null;
+                            removeCurrentSquare();
+                            chainCapture = false;
                         }
+
                         else if (currentSquare == null){
                             if (!Objects.equals(clickedBtn.getText(), "")
                                     && clickedBtn.getPiece().isWhite == moveWhite
                             ) {
-                                currentSquare = clickedBtn;
+                                setCurrentSquare(clickedBtn);
+                                chainCapture = false;
                                 Man piece = currentSquare.getPiece();
                                 System.out.println("\n\n\n");
-                                for (int row = 0; row < totalRows; row++) {
-                                    for (int col = 0; col < totalColumns; col++) {
-
-                                        if (piece.isValidMove(clickedBtn, jButtons[row][col])) {
-                                            jButtons[row][col].setBackground(UIManager.getColor("control"));
-                                        }
-                                    }
-                                }
+                                showPossibleMoves();
                             }
                         }
-
+                        else if (clickedBtn.getPiece() != null && !chainCapture){
+                            if (clickedBtn.getPiece().isWhite == currentSquare.getPiece().isWhite){
+                                setCurrentSquare(clickedBtn);
+                                chainCapture = false;
+                            }
+                        }
                         else {
                             CheckersSquare oldSquare = JavaCheckers.currentSquare;
                             Man piece = JavaCheckers.currentSquare.getPiece();
                             Man targetPiece = clickedBtn.getPiece();
-                            boolean move = piece.move(JavaCheckers.currentSquare,clickedBtn);
-                            if (!move) return;
+                            boolean move;
+                            if (chainCapture)
+                                move = piece.move(JavaCheckers.currentSquare,clickedBtn, true);
+                            else
+                                move = piece.move(JavaCheckers.currentSquare,clickedBtn);
+
+                            if (!move) {
+                                if (chainCapture) {
+                                    setCurrentSquare(oldSquare);
+                                }
+                                showPossibleMoves();
+                                return;
+                            }
                             CheckersSquare enemySquare = piece.getEnemyBetween(oldSquare, clickedBtn);
                             if (enemySquare != null) enemySquare.getPiece().die();
 
@@ -126,20 +164,24 @@ public class JavaCheckers extends JPanel {
                                 endGame();
                                 return;
                             }
-                            boolean chainMove = false;
+                            chainCapture = false;
                             if (enemySquare != null)
-                                for (int row = 0; row < totalRows; row++) {
-                                    for (int col = 0; col < totalColumns; col++) {
-                                        if (!piece.isValidMove(clickedBtn, jButtons[row][col])) continue;
-                                        enemySquare = piece.getEnemyBetween(clickedBtn, jButtons[row][col]);
-                                        if (enemySquare == null) continue;
-                                        jButtons[row][col].setBackground(UIManager.getColor("control"));
-                                        chainMove = true;
-                                    }
-                                }
+                            {
+                                chainCapture = true;
+                                showPossibleMoves();
+                            }
+//                                for (int row = 0; row < totalRows; row++) {
+//                                    for (int col = 0; col < totalColumns; col++) {
+//                                        if (!piece.isValidMove(clickedBtn, jButtons[row][col])) continue;
+//                                        enemySquare = piece.getEnemyBetween(clickedBtn, jButtons[row][col]);
+//                                        if (enemySquare == null) continue;
+//                                        jButtons[row][col].setBackground(UIManager.getColor("control"));
+//                                        chainCapture = true;
+//                                    }
+//                                }
 
-                            if (chainMove) {
-                                currentSquare = clickedBtn;
+                            if (chainCapture) {
+                                setCurrentSquare(clickedBtn);
                                 return;
                             }
 
@@ -152,6 +194,7 @@ public class JavaCheckers extends JPanel {
                             moveNum += 1;
 
                         }
+                        recolor();
 
                     }
                 );

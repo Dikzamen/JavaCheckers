@@ -130,6 +130,11 @@ public class Man {
         die();
         new King(xNew, yNew, isWhite);
     }
+    public boolean move(CheckersSquare square1, CheckersSquare square2, boolean isChainCapture){
+        CheckersSquare enemySquare = getEnemyBetween(square1, square2);
+        if (enemySquare == null) return false;
+        return move(square1, square2);
+    }
     public boolean move(CheckersSquare square1, CheckersSquare square2){
 
         if (!isValidMove(square1, square2)) {
