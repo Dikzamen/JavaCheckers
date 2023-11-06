@@ -3,8 +3,8 @@ import javax.swing.*;
 public class King extends Man{
 
     private final int speed = 8;
-    public static String whiteMan = "\u26C1";
-    public static String blackMan = "\u26C3";
+    public static String whiteMan = "\u26C3";
+    public static String blackMan = "\u26C1";
 
     String[] colors = new String[]{"white", "black"};
     public CheckersSquare currentSquare;

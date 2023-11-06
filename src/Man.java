@@ -49,27 +49,9 @@ public class Man {
     public String getFilename(){
         return filename;
     }
-    public Man temporarilyMove(CheckersSquare square){
-        Man piece = square.getPiece();
-        if (piece != null){
-            piece.temporarilyDead = true;
-        }
-        currentSquare = square;
-        currentSquare.setPiece(this);
-        return piece;
-    }
-    public void temporarilyUnmove(CheckersSquare square, Man enemyPiece){
-        CheckersSquare _currentSquare = currentSquare;
-        currentSquare.setPiece(enemyPiece);
-        currentSquare = square;
-        currentSquare.setPiece(this);
-        Man piece = _currentSquare.getPiece();
-        if (piece != null){
-            piece.temporarilyDead = false;
-        }
-    }
 
     public CheckersSquare getEnemyBetween(CheckersSquare square1, CheckersSquare square2){
+        if (square2.getRow() - square1.getRow() == 0 || square2.getCol() - square1.getCol() == 0) return null;
         int directionX = Math.abs(square1.getRow() - square2.getRow()) / (square2.getRow() - square1.getRow());
         int directionY = Math.abs(square1.getCol() - square2.getCol()) / (square2.getCol() - square1.getCol());
 
@@ -88,7 +70,7 @@ public class Man {
         if (!square2.isPlayableSquare()) return false;
         CheckersSquare oldSquare = currentSquare;
         if (square2.getPiece() != null) return false;
-        System.out.println("from " + square1.boardLocation() + " to " + square2.boardLocation());
+//        System.out.println("from " + square1.boardLocation() + " to " + square2.boardLocation());
         if (!isPossibleMove(square2))
             return false;
         int horizontalDiff = Math.abs(x - square2.getRow());
@@ -96,8 +78,6 @@ public class Man {
         int distance = horizontalDiff;
         System.out.println("direction" + getDirection() + " white=" + isWhite);
         if (!isEnemyBetween(square1, square2) && horizontalDiff > 1) return false;
-        Man enemyPiece = temporarilyMove(square2);
-        temporarilyUnmove(oldSquare, enemyPiece);
         return true;
     }
 
@@ -130,13 +110,14 @@ public class Man {
         die();
         new King(xNew, yNew, isWhite);
     }
-    public boolean move(CheckersSquare square1, CheckersSquare square2, boolean isChainCapture){
+    public boolean move(CheckersSquare square2, boolean isChainCapture){
+        CheckersSquare square1 = JavaCheckers.getSquare(x, y);
         CheckersSquare enemySquare = getEnemyBetween(square1, square2);
         if (enemySquare == null) return false;
-        return move(square1, square2);
+        return move(square2);
     }
-    public boolean move(CheckersSquare square1, CheckersSquare square2){
-
+    public boolean move(CheckersSquare square2){
+        CheckersSquare square1 = JavaCheckers.getSquare(x, y);
         if (!isValidMove(square1, square2)) {
             JavaCheckers.removeCurrentSquare();
             return false;

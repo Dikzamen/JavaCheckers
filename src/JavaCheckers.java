@@ -113,87 +113,7 @@ public class JavaCheckers extends JPanel {
                         CheckersSquare clickedBtn = (CheckersSquare) e.getSource();
                         recolor();
 
-                        if (currentSquare == clickedBtn) {
-                            removeCurrentSquare();
-                            chainCapture = false;
-                        }
-
-                        else if (currentSquare == null){
-                            if (!Objects.equals(clickedBtn.getText(), "")
-                                    && clickedBtn.getPiece().isWhite == moveWhite
-                            ) {
-                                setCurrentSquare(clickedBtn);
-                                chainCapture = false;
-                                Man piece = currentSquare.getPiece();
-                                System.out.println("\n\n\n");
-                                showPossibleMoves();
-                            }
-                        }
-                        else if (clickedBtn.getPiece() != null && !chainCapture){
-                            if (clickedBtn.getPiece().isWhite == currentSquare.getPiece().isWhite){
-                                setCurrentSquare(clickedBtn);
-                                chainCapture = false;
-                            }
-                        }
-                        else {
-                            CheckersSquare oldSquare = JavaCheckers.currentSquare;
-                            Man piece = JavaCheckers.currentSquare.getPiece();
-                            Man targetPiece = clickedBtn.getPiece();
-                            boolean move;
-                            if (chainCapture)
-                                move = piece.move(JavaCheckers.currentSquare,clickedBtn, true);
-                            else
-                                move = piece.move(JavaCheckers.currentSquare,clickedBtn);
-
-                            if (!move) {
-                                if (chainCapture) {
-                                    setCurrentSquare(oldSquare);
-                                }
-                                showPossibleMoves();
-                                return;
-                            }
-                            CheckersSquare enemySquare = piece.getEnemyBetween(oldSquare, clickedBtn);
-                            if (enemySquare != null) enemySquare.getPiece().die();
-
-                            boolean victory = checkForVictory();
-                            if (victory){
-                                String color = "black";
-                                if (moveWhite) color = "white";
-
-                                frame.setTitle(color + " won");
-                                endGame();
-                                return;
-                            }
-                            chainCapture = false;
-                            if (enemySquare != null)
-                            {
-                                chainCapture = true;
-                                showPossibleMoves();
-                            }
-//                                for (int row = 0; row < totalRows; row++) {
-//                                    for (int col = 0; col < totalColumns; col++) {
-//                                        if (!piece.isValidMove(clickedBtn, jButtons[row][col])) continue;
-//                                        enemySquare = piece.getEnemyBetween(clickedBtn, jButtons[row][col]);
-//                                        if (enemySquare == null) continue;
-//                                        jButtons[row][col].setBackground(UIManager.getColor("control"));
-//                                        chainCapture = true;
-//                                    }
-//                                }
-
-                            if (chainCapture) {
-                                setCurrentSquare(clickedBtn);
-                                return;
-                            }
-
-                            moveWhite = !moveWhite;
-                            if (moveWhite)
-                                frame.setTitle("white moves");
-                            else {
-                                frame.setTitle("black moves");
-                            }
-                            moveNum += 1;
-
-                        }
+                        extracted(clickedBtn);
                         recolor();
 
                     }
@@ -203,6 +123,87 @@ public class JavaCheckers extends JPanel {
             }
             recolor();
         }
+
+    private boolean extracted(CheckersSquare clickedBtn) {
+        if (currentSquare == clickedBtn) {
+            removeCurrentSquare();
+            chainCapture = false;
+        }
+
+        else if (currentSquare == null){
+            if (!Objects.equals(clickedBtn.getText(), "")
+                    && clickedBtn.getPiece().isWhite == moveWhite
+            ) {
+                setCurrentSquare(clickedBtn);
+                chainCapture = false;
+                Man piece = currentSquare.getPiece();
+                System.out.println("\n\n\n");
+                showPossibleMoves();
+            }
+        }
+        else if (clickedBtn.getPiece() != null && !chainCapture){
+            if (clickedBtn.getPiece().isWhite == currentSquare.getPiece().isWhite){
+                setCurrentSquare(clickedBtn);
+                chainCapture = false;
+            }
+        }
+        else {
+            CheckersSquare oldSquare = JavaCheckers.currentSquare;
+            Man piece = JavaCheckers.currentSquare.getPiece();
+            Man targetPiece = clickedBtn.getPiece();
+            boolean move;
+            if (chainCapture)
+                move = piece.move(clickedBtn, true);
+            else
+                move = piece.move(clickedBtn);
+
+            if (!move) {
+                if (chainCapture) {
+                    setCurrentSquare(oldSquare);
+                }
+                showPossibleMoves();
+                return true;
+            }
+            CheckersSquare enemySquare = piece.getEnemyBetween(oldSquare, clickedBtn);
+            if (enemySquare != null) enemySquare.getPiece().die();
+
+            boolean victory = checkForVictory();
+            if (victory){
+                String color = "black";
+                if (moveWhite) color = "white";
+
+                frame.setTitle(color + " won");
+                endGame();
+                return true;
+            }
+            chainCapture = false;
+            if (enemySquare != null)
+            {
+                chainCapture = true;
+                showPossibleMoves();
+            }
+
+            if (chainCapture) {
+                setCurrentSquare(clickedBtn);
+                return true;
+            }
+
+            changePlayer();
+            if (moveWhite)
+                frame.setTitle("white moves");
+            else {
+                frame.setTitle("black moves");
+            }
+            moveNum += 1;
+
+        }
+        return false;
+    }
+
+    private static void changePlayer() {
+        System.out.println("changed move");
+        moveWhite = !moveWhite;
+    }
 
 
     private void endGame(){
