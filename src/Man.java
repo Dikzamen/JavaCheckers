@@ -5,7 +5,6 @@ public class Man {
     public int x;
     public int y;
     public int moveCount = 0;
-    public int previousMove = 0;
     private final int speed = 1;
     public boolean isWhite;
     public boolean alive = true;
@@ -19,9 +18,6 @@ public class Man {
     public static ArrayList<Man> blackTeam = new ArrayList<>();
     public ImageIcon icon;
 
-    public boolean recentlyMoved(){
-        return JavaCheckers.moveNum - previousMove < 2;
-    }
 
     public Man(int _x, int _y, boolean isWhite){
         System.out.println("man constr " + _x + " " + _y);
@@ -76,7 +72,7 @@ public class Man {
         int horizontalDiff = Math.abs(x - square2.getRow());
         int verticalDiff = Math.abs(y - square2.getCol());
         int distance = horizontalDiff;
-        System.out.println("direction" + getDirection() + " white=" + isWhite);
+//        System.out.println("direction" + getDirection() + " white=" + isWhite);
         if (!isEnemyBetween(square1, square2) && horizontalDiff > 1) return false;
         return true;
     }
@@ -85,7 +81,7 @@ public class Man {
         int horizontalDiff = x - square2.getRow();
         int verticalDiff = y - square2.getCol();
         if (Math.abs(horizontalDiff) != Math.abs(verticalDiff)) return false;
-        System.out.println("dir = " + getDirection() + " sign=" + Math.signum(getDirection()) + " vertDif=" + verticalDiff);
+//        System.out.println("dir = " + getDirection() + " sign=" + Math.signum(getDirection()) + " vertDif=" + verticalDiff);
         if (Math.signum(getDirection()) == Math.signum(horizontalDiff) && Math.abs(horizontalDiff) < 2) return false;
         if (Math.abs(x - square2.getRow()) + Math.abs(y - square2.getCol()) < 6)
             return true;
@@ -133,8 +129,6 @@ public class Man {
         JavaCheckers.currentSquare.removeIcon();
         JavaCheckers.currentSquare.removePiece();
         JavaCheckers.removeCurrentSquare();
-        previousMove = JavaCheckers.moveNum;
-        System.out.println("moved" + this.getClass() + "move = "+ previousMove);
         currentSquare = square2;
         if (isWhite && x == 0)
             promote();

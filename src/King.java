@@ -69,25 +69,6 @@ public class King extends Man{
         multiplier -= 1;
         return -multiplier;
     }
-//    public boolean move(CheckersSquare square1, CheckersSquare square2){
-//        if (!isValidMove(square1, square2)) {
-//            JavaCheckers.removeCurrentSquare();
-//            return false;
-//        }
-//
-//        x = square2.getRow();
-//        y = square2.getCol();
-//        moveCount += 1;
-//        square2.setIcon(icon);
-//        JavaCheckers.currentSquare.removeIcon();
-//        JavaCheckers.currentSquare.removePiece();
-//        JavaCheckers.removeCurrentSquare();
-//        previousMove = JavaCheckers.moveNum;
-//        System.out.println("moved" + this.getClass() + "move = "+ previousMove);
-//        currentSquare = square2;
-//        return true;
-//
-//    }
 
     public String location(){
         return "(" + x + "," + y + ")";
